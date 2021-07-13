@@ -1,0 +1,5 @@
+[webservers]
+elliot-01
+
+[db]
+elliot-02
