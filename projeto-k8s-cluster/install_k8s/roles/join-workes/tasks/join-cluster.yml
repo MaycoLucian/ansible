@@ -1,0 +1,21 @@
+- name: Exibe o token
+  debug:
+    msg: "[WORKER] K8S_TOKEN_HOLDER - O token eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+- name: Exibe o hash
+  debug:
+    msg: "[WORKER] K8S_TOKEN_HOLDER - O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+
+- name: Remove o cluster
+  command: 
+    kubeadm reset --force
+  register: kubeadm_reset
+  changed_when: '"Deleting contents" in kubeadm_reset.stdout'
+
+- name: Adiciona o worker ao cluster k8s
+  shell:
+    kubeadm join --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }} 
+    --discovery-token-ca-cert-hash sha256:{{ hostvars['K8S_TOKEN_HOLDER']['hash'] }} 
+    {{ K8S_MASTER_NODE_IP }}:{{ K8S_API_SECURE_PORT }}
+  register: add_worker
+  changed_when: '"This node has joined the cluster" in add_worker.stdout'
